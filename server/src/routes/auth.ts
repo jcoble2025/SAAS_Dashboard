@@ -23,10 +23,12 @@ const loginSchema = Joi.object({
 });
 
 // Generate JWT token
-const generateToken = (userId: string) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET!, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
-  });
+const generateToken = (userId: string): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  return jwt.sign({ userId }, secret, { expiresIn: '7d' });
 };
 
 // @route   POST /api/auth/register

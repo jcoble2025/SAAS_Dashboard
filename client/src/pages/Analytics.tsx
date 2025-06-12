@@ -16,7 +16,7 @@ import {
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
 import { 
   ChartBarIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   UserGroupIcon,
   CurrencyDollarIcon 
 } from '@heroicons/react/24/outline'
@@ -131,7 +131,7 @@ export default function Analytics() {
     {
       name: 'Monthly Recurring Revenue',
       value: formatCurrency(analytics?.overview?.mrr || 0),
-      icon: TrendingUpIcon,
+      icon: ArrowTrendingUpIcon,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
     },

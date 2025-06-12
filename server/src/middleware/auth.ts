@@ -14,7 +14,12 @@ export const auth = async (req: AuthenticatedRequest, res: Response, next: NextF
       return res.status(401).json({ error: 'No token, authorization denied' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return res.status(500).json({ error: 'JWT secret not configured' });
+    }
+
+    const decoded = jwt.verify(token, secret) as any;
     
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },

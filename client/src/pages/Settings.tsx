@@ -19,7 +19,6 @@ export default function Settings() {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<ProfileForm>({
     defaultValues: {
       firstName: user?.firstName || '',

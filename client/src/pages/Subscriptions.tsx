@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -25,7 +24,6 @@ interface Subscription {
 }
 
 export default function Subscriptions() {
-  const [selectedSubscription, setSelectedSubscription] = useState<string | null>(null)
   const queryClient = useQueryClient()
 
   const { data: subscriptions, isLoading } = useQuery({

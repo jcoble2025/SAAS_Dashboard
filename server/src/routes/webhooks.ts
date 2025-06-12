@@ -131,7 +131,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
             action: 'PAYMENT_SUCCEEDED',
             description: `Payment succeeded for amount: ${invoice.amount_paid / 100} ${invoice.currency.toUpperCase()}`,
             metadata: { 
-              paymentId: invoice.payment_intent,
+              paymentId: typeof invoice.payment_intent === 'string' ? invoice.payment_intent : invoice.payment_intent?.id || null,
               amount: invoice.amount_paid,
               currency: invoice.currency
             }
@@ -178,7 +178,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
             action: 'PAYMENT_FAILED',
             description: `Payment failed for amount: ${invoice.amount_due / 100} ${invoice.currency.toUpperCase()}`,
             metadata: { 
-              paymentId: invoice.payment_intent,
+              paymentId: typeof invoice.payment_intent === 'string' ? invoice.payment_intent : invoice.payment_intent?.id || null,
               amount: invoice.amount_due,
               currency: invoice.currency
             }
