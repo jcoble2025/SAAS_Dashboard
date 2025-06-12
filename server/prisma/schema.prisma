@@ -1,0 +1,202 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  password          String
+  firstName         String
+  lastName          String
+  role              Role     @default(USER)
+  isEmailVerified   Boolean  @default(false)
+  stripeCustomerId  String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  company           Company?  @relation(fields: [companyId], references: [id])
+  companyId         String?
+  subscriptions     Subscription[]
+  payments          Payment[]
+  sessions          Session[]
+  activities        UserActivity[]
+
+  @@map("users")
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  domain      String?  @unique
+  industry    String?
+  size        CompanySize?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+  subscriptions Subscription[]
+
+  @@map("companies")
+}
+
+model Subscription {
+  id                String            @id @default(cuid())
+  stripeSubscriptionId String         @unique
+  status            SubscriptionStatus
+  priceId           String
+  quantity          Int               @default(1)
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd Boolean           @default(false)
+  canceledAt        DateTime?
+  trialStart        DateTime?
+  trialEnd          DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  user              User              @relation(fields: [userId], references: [id])
+  userId            String
+  company           Company?          @relation(fields: [companyId], references: [id])
+  companyId         String?
+  plan              Plan              @relation(fields: [planId], references: [id])
+  planId            String
+  payments          Payment[]
+  usageRecords      UsageRecord[]
+
+  @@map("subscriptions")
+}
+
+model Plan {
+  id              String   @id @default(cuid())
+  name            String
+  stripePriceId   String   @unique
+  stripeProductId String
+  amount          Int      // Amount in cents
+  currency        String   @default("usd")
+  interval        String   // month, year
+  intervalCount   Int      @default(1)
+  features        Json     // Array of features
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  subscriptions   Subscription[]
+
+  @@map("plans")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  stripePaymentId   String        @unique
+  amount            Int           // Amount in cents
+  currency          String        @default("usd")
+  status            PaymentStatus
+  description       String?
+  receiptUrl        String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  user              User          @relation(fields: [userId], references: [id])
+  userId            String
+  subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId    String?
+
+  @@map("payments")
+}
+
+model UsageRecord {
+  id             String   @id @default(cuid())
+  quantity       Int
+  action         String
+  timestamp      DateTime @default(now())
+  
+  // Relations
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String
+
+  @@map("usage_records")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model UserActivity {
+  id          String   @id @default(cuid())
+  action      String
+  description String?
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+
+  @@map("user_activities")
+}
+
+model Analytics {
+  id            String   @id @default(cuid())
+  metric        String
+  value         Float
+  dimensions    Json?    // Additional metadata
+  timestamp     DateTime @default(now())
+
+  @@map("analytics")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum CompanySize {
+  STARTUP
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  PAST_DUE
+  TRIALING
+  UNPAID
+}
+
+enum PaymentStatus {
+  SUCCEEDED
+  PENDING
+  FAILED
+  CANCELED
+  REFUNDED
+}

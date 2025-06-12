@@ -1,0 +1,25 @@
+{
+  "name": "saas-dashboard",
+  "version": "1.0.0",
+  "description": "A comprehensive SAAS dashboard for managing subscriptions, payments, and analytics",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm run dev",
+    "build": "npm run client:build && npm run server:build",
+    "client:build": "cd client && npm run build",
+    "server:build": "cd server && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "db:migrate": "cd server && npx prisma migrate dev",
+    "db:generate": "cd server && npx prisma generate",
+    "db:studio": "cd server && npx prisma studio"
+  },
+  "keywords": ["saas", "dashboard", "stripe", "payments", "analytics", "subscriptions"],
+  "author": "Jackson Coble",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
